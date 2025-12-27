@@ -94,5 +94,12 @@ public class Bienes {
     // Campo adicional para identificar si es de INVENTARIO o SECAP
     @Column(name = "origen", length = 20)
     private String origen; // "INVENTARIO" o "SECAP"
+
+    // Relación con Aula
+@ManyToOne(fetch = FetchType.EAGER)
+@JoinColumn(name = "id_aula")
+private Aula aula;
+
 }
+
 

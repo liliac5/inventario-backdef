@@ -23,6 +23,12 @@ public class SolicitudesController {
     public ResponseEntity<List<Solicitudes>> findAll() {
         return ResponseEntity.ok(solicitudesService.findAll());
     }
+    @GetMapping("/docente/{idUsuario}")
+public ResponseEntity<List<Solicitudes>> findByDocente(@PathVariable Long idUsuario) {
+    List<Solicitudes> solicitudes = solicitudesService.findByDocente(idUsuario);
+    return ResponseEntity.ok(solicitudes);
+}
+
     
     @GetMapping("/{id}")
     public ResponseEntity<Solicitudes> findById(@PathVariable Long id) {
@@ -31,17 +37,16 @@ public class SolicitudesController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    @PostMapping
-    public ResponseEntity<Solicitudes> save(@RequestBody Map<String, Object> request) {
-        Long idBien = Long.valueOf(request.get("idBien").toString());
-        Long idSolicitud = Long.valueOf(request.get("idSolicitud").toString());
-        String estado = request.get("estado") != null ? request.get("estado").toString() : "PENDIENTE";
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(solicitudesService.save(idBien, idSolicitud, estado));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+ @PostMapping
+public ResponseEntity<Solicitudes> save(@RequestBody Map<String, Object> request) {
+    Long idBien = Long.valueOf(request.get("idBien").toString());
+    String descripcion = request.get("descripcion").toString();
+    String estado = request.get("estado") != null ? request.get("estado").toString() : "PENDIENTE";
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(solicitudesService.save(idBien, descripcion, estado));
+}
+
+
     
     @PutMapping("/{id}")
     public ResponseEntity<Solicitudes> update(@PathVariable Long id, @RequestBody Map<String, Object> request) {

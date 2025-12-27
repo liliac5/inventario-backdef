@@ -1,15 +1,25 @@
 package com.yavirac.inventario_backend.controller;
 
-import com.yavirac.inventario_backend.entity.Asignacion;
-import com.yavirac.inventario_backend.service.AsignacionService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yavirac.inventario_backend.dto.AsignacionRequest;
+import com.yavirac.inventario_backend.entity.Asignacion;
+import com.yavirac.inventario_backend.service.AsignacionService;
 
 @RestController
 @RequestMapping("/api/asignaciones")
@@ -32,15 +42,21 @@ public class AsignacionController {
     }
     
     @PostMapping
-    public ResponseEntity<Asignacion> save(@RequestBody Map<String, Object> request) {
-        Long idAula = Long.valueOf(request.get("idAula").toString());
-        Long idUsuario = Long.valueOf(request.get("idUsuario").toString());
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(asignacionService.save(idAula, idUsuario));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+public ResponseEntity<Asignacion> save(@RequestBody AsignacionRequest request) {
+
+    if (request.getIdAula() == null || request.getIdUsuario() == null) {
+        return ResponseEntity.badRequest().build();
     }
+
+    return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(asignacionService.save(
+                    request.getIdAula(),
+                    request.getIdUsuario()
+            ));
+}
+
+
     
     @PutMapping("/{id}")
     public ResponseEntity<Asignacion> update(@PathVariable Long id, @RequestBody Map<String, Object> request) {

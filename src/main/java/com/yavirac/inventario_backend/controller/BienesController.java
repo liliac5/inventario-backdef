@@ -1,14 +1,21 @@
 package com.yavirac.inventario_backend.controller;
 
+import java.util.HashMap;
+
 import com.yavirac.inventario_backend.entity.Bienes;
 import com.yavirac.inventario_backend.service.BienesService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import com.yavirac.inventario_backend.service.AulaService;
+import com.yavirac.inventario_backend.service.CategoriaService;
 
 @RestController
 @RequestMapping("/api/bienes")
@@ -17,7 +24,11 @@ public class BienesController {
     
     @Autowired
     private BienesService bienesService;
-    
+    @Autowired
+private CategoriaService categoriaService;
+
+@Autowired
+private AulaService aulaService;
     @GetMapping
     public ResponseEntity<List<Bienes>> findAll() {
         return ResponseEntity.ok(bienesService.findAll());
@@ -36,7 +47,22 @@ public class BienesController {
         return bien.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+    @GetMapping("/editar/{id}")
+public ResponseEntity<?> obtenerBienParaEditar(@PathVariable Long id) {
+
+    Optional<Bienes> bienOpt = bienesService.findById(id);
+
+    if (bienOpt.isEmpty()) {
+        return ResponseEntity.notFound().build();
+    }
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("bien", bienOpt.get());
+    response.put("categorias", categoriaService.findAll());
+    response.put("aulas", aulaService.findAll());
+
+    return ResponseEntity.ok(response);
+}
     @PostMapping
     public ResponseEntity<Bienes> save(@RequestBody Bienes bienes) {
         try {

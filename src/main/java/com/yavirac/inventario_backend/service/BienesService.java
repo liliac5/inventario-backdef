@@ -2,10 +2,12 @@ package com.yavirac.inventario_backend.service;
 
 import com.yavirac.inventario_backend.entity.Bienes;
 import com.yavirac.inventario_backend.entity.Categoria;
+import com.yavirac.inventario_backend.entity.Aula;
 import com.yavirac.inventario_backend.repository.BienesRepository;
 import com.yavirac.inventario_backend.repository.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.yavirac.inventario_backend.repository.AulaRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +18,10 @@ public class BienesService {
     @Autowired
     private BienesRepository bienesRepository;
     
+    @Autowired
+    private AulaRepository aulaRepository;
+
+
     @Autowired
     private CategoriaRepository categoriaRepository;
     
@@ -42,6 +48,13 @@ public class BienesService {
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
             bienes.setCategoria(categoria);
         }
+
+        if (bienes.getAula() != null && bienes.getAula().getIdAula() != null) {
+    Aula aula = aulaRepository.findById(bienes.getAula().getIdAula())
+            .orElseThrow(() -> new RuntimeException("Aula no encontrada"));
+    bienes.setAula(aula);
+}
+
         
         return bienesRepository.save(bienes);
     }
@@ -85,6 +98,12 @@ public class BienesService {
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
             existingBienes.setCategoria(categoria);
         }
+        if (bienes.getAula() != null && bienes.getAula().getIdAula() != null) {
+        Aula aula = aulaRepository.findById(bienes.getAula().getIdAula())
+            .orElseThrow(() -> new RuntimeException("Aula no encontrada"));
+           existingBienes.setAula(aula);
+}
+
         
         return bienesRepository.save(existingBienes);
     }

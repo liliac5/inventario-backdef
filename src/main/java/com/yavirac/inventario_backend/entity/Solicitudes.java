@@ -11,20 +11,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Solicitudes {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_detalle")
-    private Long idDetalle;
-    
-    @Column(name = "id_solicitud", nullable = false)
+    @Column(name = "id_solicitud")
     private Long idSolicitud;
-    
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_bien", nullable = false)
     private Bienes bien;
-    
+
+    @Column(name = "descripcion", nullable = false, length = 500)
+    private String descripcion;
+
     @Column(name = "estado", length = 50)
     private String estado;
 }
+
 

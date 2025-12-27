@@ -1,10 +1,5 @@
 package com.yavirac.inventario_backend.service;
 
-import com.yavirac.inventario_backend.dto.AuthRequest;
-import com.yavirac.inventario_backend.dto.AuthResponse;
-import com.yavirac.inventario_backend.entity.Usuario;
-import com.yavirac.inventario_backend.repository.UsuarioRepository;
-import com.yavirac.inventario_backend.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,6 +7,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.yavirac.inventario_backend.dto.AuthRequest;
+import com.yavirac.inventario_backend.dto.AuthResponse;
+import com.yavirac.inventario_backend.entity.Usuario;
+import com.yavirac.inventario_backend.repository.UsuarioRepository;
+import com.yavirac.inventario_backend.security.JwtService;
 
 @Service
 public class AuthService {
