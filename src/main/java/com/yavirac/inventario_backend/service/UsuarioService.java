@@ -33,17 +33,38 @@ public class UsuarioService {
     }
     
     public Usuario save(UsuarioRequest request) {
+        // Validar que el email no esté vacío
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new RuntimeException("El email es requerido");
+        }
+        
+        // Validar que el email no esté duplicado
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("El email ya está registrado");
         }
         
+        // Validar que el rol exista
+        if (request.getIdRol() == null) {
+            throw new RuntimeException("El rol es requerido");
+        }
+        
         Rol rol = rolRepository.findById(request.getIdRol())
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + request.getIdRol()));
+        
+        // Validar que el nombre no esté vacío
+        if (request.getNombre() == null || request.getNombre().trim().isEmpty()) {
+            throw new RuntimeException("El nombre es requerido");
+        }
+        
+        // Validar que la contraseña no esté vacía
+        if (request.getContraseña() == null || request.getContraseña().trim().isEmpty()) {
+            throw new RuntimeException("La contraseña es requerida");
+        }
         
         Usuario usuario = new Usuario();
-        usuario.setNombre(request.getNombre());
+        usuario.setNombre(request.getNombre().trim());
         usuario.setRol(rol);
-        usuario.setEmail(request.getEmail());
+        usuario.setEmail(request.getEmail().trim().toLowerCase());
         usuario.setContraseña(passwordEncoder.encode(request.getContraseña()));
         usuario.setEstado(request.getEstado() != null ? request.getEstado() : true);
         
@@ -78,6 +99,22 @@ public class UsuarioService {
             throw new RuntimeException("Usuario no encontrado");
         }
         usuarioRepository.deleteById(id);
+    }
+    
+    public Usuario cambiarEstado(Long id, Boolean estado) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        usuario.setEstado(estado);
+        return usuarioRepository.save(usuario);
+    }
+    
+    public Usuario desactivar(Long id) {
+        return cambiarEstado(id, false);
+    }
+    
+    public Usuario activar(Long id) {
+        return cambiarEstado(id, true);
     }
 }
 

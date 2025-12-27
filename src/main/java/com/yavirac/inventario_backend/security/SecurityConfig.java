@@ -31,15 +31,16 @@ public class SecurityConfig {
     @Autowired
     private UserDetailsService userDetailsService;
     @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-            .anyRequest().permitAll()
-        );
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            );
 
-    return http.build();
-}
+        return http.build();
+    }
     // @Bean
     // public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     //     http
