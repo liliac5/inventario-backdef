@@ -97,4 +97,12 @@ public class SolicitudesService {
         // 3️⃣ Filtrar solicitudes de esos bienes
         return solicitudesRepository.findByBienIdBienIn(bienesIds);
     }
+    public Solicitudes cambiarEstado(Long id, String estado) {
+    Solicitudes solicitud = solicitudesRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+
+    solicitud.setEstado(estado);
+    return solicitudesRepository.save(solicitud);
+}
+
 }

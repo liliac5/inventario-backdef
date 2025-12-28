@@ -46,6 +46,15 @@ public ResponseEntity<Solicitudes> save(@RequestBody Map<String, Object> request
     return ResponseEntity.status(HttpStatus.CREATED).body(solicitudesService.save(idBien, descripcion, estado));
 }
 
+@PutMapping("/{id}/aprobar")
+public ResponseEntity<Solicitudes> aprobar(@PathVariable Long id) {
+    return ResponseEntity.ok(solicitudesService.cambiarEstado(id, "APROBADA"));
+}
+
+@PutMapping("/{id}/denegar")
+public ResponseEntity<Solicitudes> denegar(@PathVariable Long id) {
+    return ResponseEntity.ok(solicitudesService.cambiarEstado(id, "DENEGADA"));
+}
 
     
     @PutMapping("/{id}")
