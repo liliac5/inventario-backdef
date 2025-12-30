@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AsignacionService {
@@ -74,6 +75,18 @@ public class AsignacionService {
             throw new RuntimeException("Asignación no encontrada");
         }
         asignacionRepository.deleteById(id);
+    }
+    
+    public List<Asignacion> findByUsuarioId(Long idUsuario) {
+        return asignacionRepository.findByUsuarioIdUsuarioAndEstadoTrueWithRelations(idUsuario);
+    }
+    
+    public List<Aula> findAulasByUsuarioId(Long idUsuario) {
+        List<Asignacion> asignaciones = findByUsuarioId(idUsuario);
+        return asignaciones.stream()
+                .map(Asignacion::getAula)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
 

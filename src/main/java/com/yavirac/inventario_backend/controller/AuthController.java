@@ -20,26 +20,53 @@ public class AuthController {
     @Autowired
     private AuthService authService;
     
+    // Método para enmascarar emails en logs
+    private String maskEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            return "***";
+        }
+        int atIndex = email.indexOf('@');
+        if (atIndex <= 0) {
+            return "***";
+        }
+        String localPart = email.substring(0, atIndex);
+        String domain = email.substring(atIndex);
+        
+        if (localPart.length() <= 2) {
+            return localPart.charAt(0) + "***" + domain;
+        }
+        return localPart.charAt(0) + "***" + localPart.charAt(localPart.length() - 1) + domain;
+    }
+    
+    // Método para enmascarar tokens en logs
+    private String maskToken(String token) {
+        if (token == null || token.isEmpty()) {
+            return "***";
+        }
+        if (token.length() <= 10) {
+            return "***";
+        }
+        return token.substring(0, 6) + "..." + token.substring(token.length() - 4);
+    }
+    
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         try {
-            System.out.println("🔐 Intento de login para: " + request.getEmail());
+            System.out.println("🔐 Intento de login para: " + maskEmail(request.getEmail()));
             AuthResponse response = authService.login(request);
-            System.out.println("✅ Login exitoso para: " + response.getEmail());
-            System.out.println("📤 Enviando respuesta: token=" + (response.getToken() != null ? "✓" : "✗") + 
-                             ", email=" + response.getEmail() + ", rol=" + response.getRol());
+            System.out.println("✅ Login exitoso para: " + maskEmail(response.getEmail()));
+            System.out.println("📤 Enviando respuesta: token=" + maskToken(response.getToken()) + 
+                             ", email=" + maskEmail(response.getEmail()) + ", rol=" + response.getRol());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             System.err.println("❌ Error en login: " + e.getMessage());
-            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         } catch (Exception e) {
-            System.err.println("❌ Error inesperado en login: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("❌ Error inesperado en login");
             Map<String, String> error = new HashMap<>();
-            error.put("error", "Error al procesar la solicitud: " + e.getMessage());
+            error.put("error", "Error al procesar la solicitud");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }

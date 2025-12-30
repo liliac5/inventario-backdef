@@ -25,11 +25,17 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
     
     public List<Usuario> findAll() {
-        return usuarioRepository.findAll();
+        return usuarioRepository.findAllWithRol();
     }
     
     public Optional<Usuario> findById(Long id) {
-        return usuarioRepository.findById(id);
+        Optional<Usuario> usuario = usuarioRepository.findById(id);
+        // Asegurar que el rol esté cargado
+        if (usuario.isPresent() && usuario.get().getRol() == null) {
+            // Si el rol no está cargado, recargar con JOIN FETCH
+            return usuarioRepository.findByEmailWithRol(usuario.get().getEmail());
+        }
+        return usuario;
     }
     
     public Usuario save(UsuarioRequest request) {
@@ -49,7 +55,16 @@ public class UsuarioService {
         }
         
         Rol rol = rolRepository.findById(request.getIdRol())
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + request.getIdRol()));
+                .orElseThrow(() -> {
+                    // Obtener lista de roles disponibles para el mensaje de error
+                    List<Rol> rolesDisponibles = rolRepository.findAll();
+                    String rolesStr = rolesDisponibles.stream()
+                            .map(r -> r.getIdRol() + "=" + r.getNombre())
+                            .reduce((a, b) -> a + ", " + b)
+                            .orElse("No hay roles disponibles");
+                    return new RuntimeException("Rol no encontrado con ID: " + request.getIdRol() + 
+                            ". Roles disponibles: " + rolesStr);
+                });
         
         // Validar que el nombre no esté vacío
         if (request.getNombre() == null || request.getNombre().trim().isEmpty()) {

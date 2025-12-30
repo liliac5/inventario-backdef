@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yavirac.inventario_backend.dto.AsignacionRequest;
 import com.yavirac.inventario_backend.entity.Asignacion;
+import com.yavirac.inventario_backend.entity.Aula;
 import com.yavirac.inventario_backend.service.AsignacionService;
 
 @RestController
@@ -78,6 +79,16 @@ public ResponseEntity<Asignacion> save(@RequestBody AsignacionRequest request) {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+    
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<List<Asignacion>> findByUsuarioId(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(asignacionService.findByUsuarioId(idUsuario));
+    }
+    
+    @GetMapping("/usuario/{idUsuario}/aulas")
+    public ResponseEntity<List<Aula>> findAulasByUsuarioId(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(asignacionService.findAulasByUsuarioId(idUsuario));
     }
 }
 

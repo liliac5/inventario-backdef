@@ -64,20 +64,40 @@ public ResponseEntity<?> obtenerBienParaEditar(@PathVariable Long id) {
     return ResponseEntity.ok(response);
 }
     @PostMapping
-    public ResponseEntity<Bienes> save(@RequestBody Bienes bienes) {
+    public ResponseEntity<?> save(@RequestBody Bienes bienes) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(bienesService.save(bienes));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            System.err.println("❌ Error al crear bien: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            System.err.println("❌ Error inesperado al crear bien: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error al procesar la solicitud: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Bienes> update(@PathVariable Long id, @RequestBody Bienes bienes) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Bienes bienes) {
         try {
             return ResponseEntity.ok(bienesService.update(id, bienes));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            System.err.println("❌ Error al actualizar bien: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            System.err.println("❌ Error inesperado al actualizar bien: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error al procesar la solicitud: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
     

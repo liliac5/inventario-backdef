@@ -21,6 +21,24 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
     
+    // Método para enmascarar emails en logs
+    private String maskEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            return "***";
+        }
+        int atIndex = email.indexOf('@');
+        if (atIndex <= 0) {
+            return "***";
+        }
+        String localPart = email.substring(0, atIndex);
+        String domain = email.substring(atIndex);
+        
+        if (localPart.length() <= 2) {
+            return localPart.charAt(0) + "***" + domain;
+        }
+        return localPart.charAt(0) + "***" + localPart.charAt(localPart.length() - 1) + domain;
+    }
+    
     @GetMapping
     public ResponseEntity<List<Usuario>> findAll() {
         return ResponseEntity.ok(usuarioService.findAll());
@@ -36,10 +54,11 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<?> save(@RequestBody UsuarioRequest request) {
         try {
-            System.out.println("📝 Creando usuario: " + request.getEmail());
-            System.out.println("   Nombre: " + request.getNombre());
-            System.out.println("   Email: " + request.getEmail());
+            System.out.println("📝 Creando usuario: " + maskEmail(request.getEmail()));
+            System.out.println("   Nombre: " + (request.getNombre() != null ? request.getNombre() : "N/A"));
+            System.out.println("   Email: " + maskEmail(request.getEmail()));
             System.out.println("   Rol ID: " + request.getIdRol());
+            System.out.println("   Contraseña: " + (request.getContraseña() != null && !request.getContraseña().isEmpty() ? "***" : "No proporcionada"));
             
             // Validar campos requeridos
             if (request.getNombre() == null || request.getNombre().trim().isEmpty()) {
@@ -56,7 +75,7 @@ public class UsuarioController {
             }
             
             Usuario usuario = usuarioService.save(request);
-            System.out.println("✅ Usuario creado exitosamente: " + usuario.getEmail());
+            System.out.println("✅ Usuario creado exitosamente: " + maskEmail(usuario.getEmail()));
             return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
         } catch (RuntimeException e) {
             System.err.println("❌ Error al crear usuario: " + e.getMessage());
@@ -90,7 +109,7 @@ public class UsuarioController {
             }
             
             Usuario usuario = usuarioService.update(id, request);
-            System.out.println("✅ Usuario actualizado exitosamente: " + usuario.getEmail());
+            System.out.println("✅ Usuario actualizado exitosamente: " + maskEmail(usuario.getEmail()));
             return ResponseEntity.ok(usuario);
         } catch (RuntimeException e) {
             System.err.println("❌ Error al actualizar usuario: " + e.getMessage());
