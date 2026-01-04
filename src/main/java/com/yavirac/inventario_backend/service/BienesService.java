@@ -37,50 +37,49 @@ public class BienesService {
         return bienesRepository.findByCodigoBien(codigoBien);
     }
     
-    public Bienes save(Bienes bienes) {
-        // Validar código de bien duplicado
-        if (bienes.getCodigoBien() != null && 
-            bienesRepository.existsByCodigoBien(bienes.getCodigoBien())) {
-            throw new RuntimeException("El código de bien ya está registrado");
-        }
-        
-        // Validar que la categoría sea obligatoria
-        if (bienes.getCategoria() == null || bienes.getCategoria().getIdCategoria() == null) {
-            throw new RuntimeException("Debe seleccionar una categoría válida");
-        }
-        
-        // Validar que el ID de categoría sea un número válido (no NaN, no negativo)
-        Long idCategoria = bienes.getCategoria().getIdCategoria();
-        if (idCategoria <= 0) {
-            throw new RuntimeException("Debe seleccionar una categoría válida");
-        }
-        
-        // Verificar que la categoría exista en la base de datos
-        Categoria categoria = categoriaRepository.findById(idCategoria)
-                .orElseThrow(() -> {
-                    List<Categoria> todasLasCategorias = categoriaRepository.findAll();
-                    String categoriasDisponibles = todasLasCategorias.stream()
-                            .map(c -> "ID: " + c.getIdCategoria() + " - " + c.getNombre())
-                            .reduce((a, b) -> a + ", " + b)
-                            .orElse("No hay categorías disponibles");
-                    return new RuntimeException("Categoría no encontrada con ID: " + idCategoria + 
-                            ". Categorías disponibles: " + categoriasDisponibles);
-                });
-        bienes.setCategoria(categoria);
+public Bienes save(Bienes bienes) {
 
-        // Validar aula si se proporciona
-        if (bienes.getAula() != null && bienes.getAula().getIdAula() != null) {
-            Long idAula = bienes.getAula().getIdAula();
-            if (idAula <= 0) {
-                throw new RuntimeException("Debe seleccionar un aula válida");
-            }
-            Aula aula = aulaRepository.findById(idAula)
-                    .orElseThrow(() -> new RuntimeException("Aula no encontrada con ID: " + idAula));
-            bienes.setAula(aula);
-        }
-        
-        return bienesRepository.save(bienes);
+    // 1️⃣ Validar código duplicado
+    if (bienes.getCodigoBien() != null &&
+        bienesRepository.existsByCodigoBien(bienes.getCodigoBien())) {
+        throw new RuntimeException("El código de bien ya está registrado");
     }
+
+    // 2️⃣ VALIDAR Y CARGAR CATEGORÍA (ESTO FALTABA BIEN HECHO)
+    if (bienes.getCategoria() == null || bienes.getCategoria().getIdCategoria() == null) {
+        throw new RuntimeException("Debe seleccionar una categoría válida");
+    }
+
+    Long idCategoria = bienes.getCategoria().getIdCategoria();
+    if (idCategoria <= 0) {
+        throw new RuntimeException("Debe seleccionar una categoría válida");
+    }
+
+    Categoria categoria = categoriaRepository.findById(idCategoria)
+            .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + idCategoria));
+
+    bienes.setCategoria(categoria); // 🔥 CLAVE
+
+
+    // 3️⃣ VALIDAR Y CARGAR AULA (ESTA PARTE YA LA TENÍAS BIEN)
+    if (bienes.getAula() != null && bienes.getAula().getIdAula() != null) {
+
+        Long idAula = bienes.getAula().getIdAula();
+        if (idAula <= 0) {
+            throw new RuntimeException("Debe seleccionar un aula válida");
+        }
+
+        Aula aula = aulaRepository.findById(idAula)
+                .orElseThrow(() -> new RuntimeException("Aula no encontrada con ID: " + idAula));
+
+        bienes.setAula(aula);
+    } else {
+        bienes.setAula(null); // permitido
+    }
+
+    return bienesRepository.save(bienes);
+}
+
     
     public Bienes update(Long id, Bienes bienes) {
         Bienes existingBienes = bienesRepository.findById(id)
