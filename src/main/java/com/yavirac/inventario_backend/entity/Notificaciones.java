@@ -20,40 +20,30 @@ public class Notificaciones {
     @Column(name = "id_notificacion")
     private Long idNotificacion;
     
-    // Datos del RESUMEN - Primera tabla (Resumen por Cuenta Contable)
-    @Column(name = "cuenta_contable", length = 50)
-    private String cuentaContable; // Ej: "141.01.03"
-    
-    @Column(name = "nombre_cuenta", length = 200)
-    private String nombreCuenta; // Ej: "Mobiliarios"
-    
-    @Column(name = "bienes_constatados")
-    private Integer bienesConstatados;
-    
-    @Column(name = "bienes_no_identificados")
-    private Integer bienesNoIdentificados;
-    
-    @Column(name = "total")
-    private Integer total;
-    
-    // Datos del RESUMEN - Segunda tabla (Resumen por Sistema de Control)
-    @Column(name = "sistema_control", length = 50)
-    private String sistemaControl; // Ej: "OLYMPO 2015", "OLYMPO SENESCYT", "eByE"
-    
-    @Column(name = "cantidad_olympo_2015")
-    private Integer cantidadOlympo2015;
-    
-    @Column(name = "cantidad_olympo_senescyt")
-    private Integer cantidadOlympoSenescyt;
-    
-    @Column(name = "cantidad_otro_sistema")
-    private Integer cantidadOtroSistema;
-    
-    @Column(name = "total_sistema")
-    private Integer totalSistema;
-    
     @Column(name = "tipo_notificacion", length = 50)
-    private String tipoNotificacion; // "RESUMEN_CUENTA" o "RESUMEN_SISTEMA"
+    private String tipoNotificacion; // "REPORTE_INCIDENCIA"
+    
+    // Campos para reportes de incidencias
+    @Column(name = "id_reporte")
+    private Long idReporte; // FK a reportes_incidencias
+    
+    @Column(name = "estado", length = 50)
+    private String estado; // "Pendiente", "En reparación", "Resuelto", "Cerrado"
+    
+    @Column(name = "tipo_incidencia", length = 100)
+    private String tipoIncidencia; // "Daño Físico", "Mantenimiento", "Pérdida/Ausencia", etc.
+    
+    @Column(name = "detalle_problema", columnDefinition = "TEXT")
+    private String detalleProblema;
+    
+    @Column(name = "elemento_afectado", length = 200)
+    private String elementoAfectado; // Nombre o código del bien afectado
+    
+    @Column(name = "reportado_por", length = 200)
+    private String reportadoPor; // Nombre del usuario que reporta
+    
+    @Column(name = "fecha_hora_reporte")
+    private LocalDateTime fechaHoraReporte;
     
     @CreationTimestamp
     @Column(name = "fecha_creacion", nullable = false, updatable = false)

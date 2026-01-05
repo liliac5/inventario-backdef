@@ -38,17 +38,15 @@ public class NotificacionesService {
         Notificaciones existingNotificacion = notificacionesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notificación no encontrada"));
         
-        if (notificacion.getCuentaContable() != null) existingNotificacion.setCuentaContable(notificacion.getCuentaContable());
-        if (notificacion.getNombreCuenta() != null) existingNotificacion.setNombreCuenta(notificacion.getNombreCuenta());
-        if (notificacion.getBienesConstatados() != null) existingNotificacion.setBienesConstatados(notificacion.getBienesConstatados());
-        if (notificacion.getBienesNoIdentificados() != null) existingNotificacion.setBienesNoIdentificados(notificacion.getBienesNoIdentificados());
-        if (notificacion.getTotal() != null) existingNotificacion.setTotal(notificacion.getTotal());
-        if (notificacion.getSistemaControl() != null) existingNotificacion.setSistemaControl(notificacion.getSistemaControl());
-        if (notificacion.getCantidadOlympo2015() != null) existingNotificacion.setCantidadOlympo2015(notificacion.getCantidadOlympo2015());
-        if (notificacion.getCantidadOlympoSenescyt() != null) existingNotificacion.setCantidadOlympoSenescyt(notificacion.getCantidadOlympoSenescyt());
-        if (notificacion.getCantidadOtroSistema() != null) existingNotificacion.setCantidadOtroSistema(notificacion.getCantidadOtroSistema());
-        if (notificacion.getTotalSistema() != null) existingNotificacion.setTotalSistema(notificacion.getTotalSistema());
+        // Actualizar solo los campos que existen ahora
         if (notificacion.getTipoNotificacion() != null) existingNotificacion.setTipoNotificacion(notificacion.getTipoNotificacion());
+        if (notificacion.getIdReporte() != null) existingNotificacion.setIdReporte(notificacion.getIdReporte());
+        if (notificacion.getEstado() != null) existingNotificacion.setEstado(notificacion.getEstado());
+        if (notificacion.getTipoIncidencia() != null) existingNotificacion.setTipoIncidencia(notificacion.getTipoIncidencia());
+        if (notificacion.getDetalleProblema() != null) existingNotificacion.setDetalleProblema(notificacion.getDetalleProblema());
+        if (notificacion.getElementoAfectado() != null) existingNotificacion.setElementoAfectado(notificacion.getElementoAfectado());
+        if (notificacion.getReportadoPor() != null) existingNotificacion.setReportadoPor(notificacion.getReportadoPor());
+        if (notificacion.getFechaHoraReporte() != null) existingNotificacion.setFechaHoraReporte(notificacion.getFechaHoraReporte());
         if (notificacion.getLeida() != null) existingNotificacion.setLeida(notificacion.getLeida());
         
         return notificacionesRepository.save(existingNotificacion);

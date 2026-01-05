@@ -1,8 +1,10 @@
 package com.yavirac.inventario_backend.security;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,34 +32,22 @@ public class SecurityConfig {
     
     @Autowired
     private UserDetailsService userDetailsService;
+    
+    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:4200}")
+    private String allowedOrigins;
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
+                // Todas las rutas son públicas (como estaba antes)
                 .anyRequest().permitAll()
             );
 
         return http.build();
     }
-    // @Bean
-    // public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    //     http
-    //             .csrf(csrf -> csrf.disable())
-    //             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-    //             .authorizeHttpRequests(auth -> auth
-    //                     .requestMatchers("/api/auth/**").permitAll()
-    //                     .anyRequest().authenticated()
-    //             )
-    //             .sessionManagement(session -> session
-    //                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-    //             )
-    //             .authenticationProvider(authenticationProvider())
-    //             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-        
-    //     return http.build();
-    // }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -78,10 +68,22 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Permitir todos los orígenes (para desarrollo)
         configuration.setAllowedOrigins(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // Métodos permitidos
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        
+        // Headers permitidos
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        
+        // NO permitir credenciales cuando se usa * (causa problemas)
         configuration.setAllowCredentials(false);
+        
+        // Cache preflight requests por 1 hora
+        configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

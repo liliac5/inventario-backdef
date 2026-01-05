@@ -1,14 +1,15 @@
 package com.yavirac.inventario_backend.controller;
 
-import com.yavirac.inventario_backend.entity.Notificaciones;
-import com.yavirac.inventario_backend.service.NotificacionesService;
+import com.yavirac.inventario_backend.dto.ReporteIncidenciaResponse;
+import com.yavirac.inventario_backend.entity.ReporteIncidencia;
+import com.yavirac.inventario_backend.service.ReporteIncidenciaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/notificaciones")
@@ -16,61 +17,64 @@ import java.util.Optional;
 public class NotificacionesController {
     
     @Autowired
-    private NotificacionesService notificacionesService;
+    private ReporteIncidenciaService reporteIncidenciaService;
     
+    /**
+     * Obtener todos los reportes (funciona como notificaciones)
+     */
     @GetMapping
-    public ResponseEntity<List<Notificaciones>> findAll() {
-        return ResponseEntity.ok(notificacionesService.findAll());
+    public ResponseEntity<List<ReporteIncidenciaResponse>> findAll() {
+        List<ReporteIncidencia> reportes = reporteIncidenciaService.findAll();
+        List<ReporteIncidenciaResponse> responses = reportes.stream()
+                .map(ReporteIncidenciaResponse::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
     
+    /**
+     * Obtener reportes pendientes (equivalente a "no leídas")
+     */
     @GetMapping("/no-leidas")
-    public ResponseEntity<List<Notificaciones>> findNoLeidas() {
-        return ResponseEntity.ok(notificacionesService.findNoLeidas());
+    public ResponseEntity<List<ReporteIncidenciaResponse>> findNoLeidas() {
+        List<ReporteIncidencia> reportes = reporteIncidenciaService.findByEstado("Pendiente");
+        List<ReporteIncidenciaResponse> responses = reportes.stream()
+                .map(ReporteIncidenciaResponse::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
     
-    @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<List<Notificaciones>> findByTipo(@PathVariable String tipo) {
-        return ResponseEntity.ok(notificacionesService.findByTipo(tipo));
+    /**
+     * Obtener reportes por estado (similar a Solicitudes - filtro por estado)
+     */
+    @GetMapping("/estado/{estado}")
+    public ResponseEntity<List<ReporteIncidenciaResponse>> findByEstado(@PathVariable String estado) {
+        List<ReporteIncidencia> reportes = reporteIncidenciaService.findByEstado(estado);
+        List<ReporteIncidenciaResponse> responses = reportes.stream()
+                .map(ReporteIncidenciaResponse::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
     
+    /**
+     * Obtener reporte por ID
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<Notificaciones> findById(@PathVariable Long id) {
-        Optional<Notificaciones> notificacion = notificacionesService.findById(id);
-        return notificacion.map(ResponseEntity::ok)
+    public ResponseEntity<ReporteIncidenciaResponse> findById(@PathVariable Long id) {
+        Optional<ReporteIncidencia> reporte = reporteIncidenciaService.findById(id);
+        return reporte.map(r -> ResponseEntity.ok(new ReporteIncidenciaResponse(r)))
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    @PostMapping
-    public ResponseEntity<Notificaciones> save(@RequestBody Notificaciones notificacion) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(notificacionesService.save(notificacion));
-    }
-    
-    @PutMapping("/{id}")
-    public ResponseEntity<Notificaciones> update(@PathVariable Long id, @RequestBody Notificaciones notificacion) {
-        try {
-            return ResponseEntity.ok(notificacionesService.update(id, notificacion));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @PutMapping("/{id}/marcar-leida")
-    public ResponseEntity<Notificaciones> marcarComoLeida(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(notificacionesService.marcarComoLeida(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        try {
-            notificacionesService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    /**
+     * Obtener reportes por tipo de incidencia
+     */
+    @GetMapping("/tipo/{tipo}")
+    public ResponseEntity<List<ReporteIncidenciaResponse>> findByTipo(@PathVariable String tipo) {
+        List<ReporteIncidencia> reportes = reporteIncidenciaService.findByTipoIncidencia(tipo);
+        List<ReporteIncidenciaResponse> responses = reportes.stream()
+                .map(ReporteIncidenciaResponse::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 }
 
