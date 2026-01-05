@@ -21,5 +21,5 @@ RUN ./mvnw clean package -DskipTests
 
 # Ejecutar la aplicación
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "target/*.jar", "--spring.profiles.active=prod"]
+ENTRYPOINT ["sh", "-c", "java -jar target/inventario-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod"]
 
