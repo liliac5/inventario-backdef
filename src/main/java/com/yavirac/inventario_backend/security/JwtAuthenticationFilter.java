@@ -58,11 +58,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
-                // Si el token es inválido, simplemente continuar sin autenticación (rutas públicas)
+                // Si el token es inválido, la seguridad bloqueará la petición
             }
         } catch (Exception e) {
-            // Si hay error al procesar el token, continuar sin autenticación (rutas públicas)
-            // No bloquear la petición
+            // Si hay error al procesar el token, la seguridad bloqueará la petición
+            // Log del error (opcional)
         }
         
         filterChain.doFilter(request, response);

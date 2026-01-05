@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -42,9 +43,13 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                // Todas las rutas son públicas (como estaba antes)
-                .anyRequest().permitAll()
-            );
+                // Rutas públicas (autenticación)
+                .requestMatchers("/api/auth/**").permitAll()
+                // Todas las demás rutas requieren autenticación
+                .anyRequest().authenticated()
+            )
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -69,8 +74,18 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Permitir todos los orígenes (para desarrollo)
-        configuration.setAllowedOrigins(Arrays.asList("*"));
+        // Obtener orígenes permitidos desde configuración
+        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        
+        // Si hay un solo origen "*", permitir todos (desarrollo)
+        if (origins.size() == 1 && origins.get(0).equals("*")) {
+            configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+            configuration.setAllowCredentials(false);
+        } else {
+            // En producción, usar orígenes específicos
+            configuration.setAllowedOrigins(origins);
+            configuration.setAllowCredentials(true);
+        }
         
         // Métodos permitidos
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
@@ -78,9 +93,6 @@ public class SecurityConfig {
         // Headers permitidos
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        
-        // NO permitir credenciales cuando se usa * (causa problemas)
-        configuration.setAllowCredentials(false);
         
         // Cache preflight requests por 1 hora
         configuration.setMaxAge(3600L);
